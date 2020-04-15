@@ -1,0 +1,124 @@
+/*===========presentation header style===============*/
+body.spresentation {
+  padding-top: 120px;
+}
+header.presentation_header {
+    background: #fff;
+    border-bottom: 1px solid #eaeef4;
+    box-shadow: 0 0 20px rgba(90, 70, 87, 0.12);
+    left: 0;
+    padding: 20px 50px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+}
+.presentation_header a.logo {
+    display: block;
+    line-height: 53px;
+}
+.presentation_header .header_right ul li {
+    display: inline-block;
+    list-style: none;
+}
+.presentation_header .header_right ul li a {
+    border-radius: 3px;
+    color: #2d3139;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 50px;
+    letter-spacing: 1px;
+    line-height: 50px;
+    margin-left: 8px;
+    padding: 0 30px;
+    text-transform: uppercase;
+}
+.presentation_header .header_right ul li.free_download a {
+    background: #546175;
+    color: #fff;
+}
+.presentation_header .header_right ul li.purchase a {
+    background: #247cff;
+    color: #fff;
+}
+.title{
+	position: absolute;
+	top:25px;
+	left:800px;
+	font-size: 30px;
+}
+
+/*=================Start table=============*/
+.spreadsheet{
+	position: absolute;
+	top: 100px;
+	left:370px;
+	width: 100%;
+	height: 1000px;
+}
+
+/*=================Start table=============*/
+.presentation_sidebar {
+    background: #fff none repeat scroll 0 0;
+    border-right: 1px solid #ddd;
+    height: 100%;
+    left: 0;
+    padding: 120px 0 50px;
+    position: fixed;
+    top: 0;
+    width: 350px;
+    z-index: 2;
+    -webkit-transition: left 0.3s linear;
+    -moz-transition: left 0.3s linear;
+    -ms-transition: left 0.3s linear;
+    -o-transition: left 0.3s linear;
+    transition: left 0.3s linear;
+}
+.Main_function {
+	border:4px solid #4682B4;
+	height: 40px;
+	font-size: 25px;
+	text-align:center;
+	
+}
+.package_number {
+	height: 60px;
+	font-size: 20px;
+	position: absolute;
+	left: 50px;
+	text-decoration:underline;
+	letter-spacing:5px;
+	line-height:50px;
+}
+
+.Prompt_logo {
+	height:80px;
+}
+
+.logo_title{
+	position: absolute;
+	right: 30px;
+	font-size: 40px;
+}
+/*=================Submit bar=============*/
+.form1 button
+{
+	position: absolute;
+	top:850px;
+	right:120px;
+	background-color:#EAEAEA;
+	width:100px;
+	height:50px;
+	font-size:20px;	
+}
+.form2 button
+{
+	position: absolute;
+	top:850px;
+	right:250px;
+	background-color:#EAEAEA;
+	width:100px;
+	height:50px;
+	font-size:20px;	
+}
