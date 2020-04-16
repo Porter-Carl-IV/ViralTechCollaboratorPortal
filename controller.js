@@ -227,14 +227,15 @@ function createNewPackage() {
 
 }
 function loadSummaryPage( ){
-  bar = document.getElementById("progress");
   title = document.getElementById("summaryTitle");
+  var img = document.createElement("img");
 
   for( index = 0; index < window.packages.length; index++ )
   {
     if( window.packages[index].packageID == window.pacID )
     {
-      bar.value = window.packages[index].stepID;
+      img.src = 'images/step' + window.packages[index].stepID + '.png';
+      document.getElementById("progressBar").appendChild(img);
       title.innerHTML = "Package Created On " + window.packages[index].packageDate;
       if( window.packages[index].errorCount > 0 ) {
         document.getElementById("summaryButtons").innerHTML += "<button class=\"botton_section\" onclick =\"navErrorPage(" + window.pacID + ");\">Resolve Errors</button><br>";
