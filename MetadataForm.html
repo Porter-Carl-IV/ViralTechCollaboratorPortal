@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-US" class="no-js">
+<head>
+	<link rel="stylesheet" href="css/asset/shortcode-common.css">
+	<link rel="stylesheet" href="css/MetadataForm.css">
+	<title>TGEN</title>
+	<script src="/controller.js/"></script>
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+		<!--favicon icon-->
+		<link rel="icon" href="/images/favicon.png">
+</head>
+<body class="spresentation">
+<!-- =========================================Start header section== =======================================-->
+		<header class="presentation_header">
+	<div class="container-fluid">
+    	<div class="row">
+        	<div class="col-sm-2">
+          	<img src="images/logo.png" class="logo" alt="logo" height="50" width="150">
+
+        	</div>
+					<div class="title">
+	            <center><a id= "metadataTitle">Metadata Form</a></center>
+	        </div>
+    	</div>
+	</div>
+	<button class = "signOutButton" align="right" onclick="signOut();">Sign out</button>
+
+</header>
+<!-- =========================================End header section=========================================-->
+<div class="presentation_sidebar">
+<style>
+button:hover {
+	background:#00CDCD;
+}
+</style>
+	<center><button class="Function" onclick="navCreatePackage();">Create New Package</button></center>
+
+
+
+<div class="sidebar" id="buttons">
+
+</div>
+
+</div>
+
+<!-- =========================================Start table =========================================-->
+<div class="spreadsheet">
+	<div id="table">
+	</div>
+	<script>
+	initialize(function(){createButtons("buttons" , function(){openMetadata();});});
+	window.addEventListener("beforeunload", function( e ) {
+		if( !window.saved ) {
+			event.returnValue = 'You have unfinished changes!';
+		}
+	});
+	</script>
+</div>
+
+<!-- =========================================Submit bar=========================================-->
+<div class="form1" id="insert">
+
+</div>
+
+<div class="form2" id="update">
+
+</div>
+
+<div class="form3"id="addcol">
+
+</div>
+
+<div class="form4" id="addsample">
+
+</div>
+
+
+</body>
+
+</html>

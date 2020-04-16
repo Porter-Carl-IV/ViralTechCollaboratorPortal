@@ -315,6 +315,20 @@ function navSummaryPage( pacID ){
   }
 }
 
+function navErrorPage(  ){
+  {
+    /*alert("Communicate your resolution to TGen point of contact:\n" +
+    "\n\n To: TGen@gmail.com" +
+    "\n\n From: Your Email" +
+    "\n\n Subject: Sample Flag Resolution Submission #12345" +
+    "\n\n Message: Eg: Please proceed with all Samples, excluding problematic samples" +
+    "\n\t\t\t Please do what you can to recover data for the problematic samples, ect.");
+    */
+    window.location.href = "/tgen/ErrorPage.html#?id=" + getUrlVars()["id"];
+  }
+}
+
+
 function updatePackage(){
   var data = [];
   //alert(window.spreadsheet.getColHeader(0));

@@ -1,0 +1,157 @@
+/*===========presentation header style===============*/
+body.spresentation {
+  padding-top: 120px;
+  background:#FFFFFF;
+}
+header.presentation_header {
+    background: #fff;
+    border-bottom: 1px solid #eaeef4;
+    box-shadow: 0 0 20px rgba(90, 70, 87, 0.12);
+    left: 0;
+    padding: 20px 50px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+}
+.presentation_header a.logo {
+    display: block;
+    line-height: 53px;
+}
+.presentation_header .header_right ul li {
+    display: inline-block;
+    list-style: none;
+}
+.presentation_header .header_right ul li a {
+    border-radius: 3px;
+    color: #2d3139;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 50px;
+    letter-spacing: 1px;
+    line-height: 50px;
+    margin-left: 8px;
+    padding: 0 30px;
+    text-transform: uppercase;
+}
+.presentation_header .header_right ul li.free_download a {
+    background: #546175;
+    color: #fff;
+}
+.presentation_header .header_right ul li.purchase a {
+    background: #247cff;
+    color: #fff;
+}
+
+.presentation_header .signOutButton {
+  background-color: #e7e7e7; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 150px;
+    height: 50px;
+  left: 90%;
+  top: 2%;
+  position: fixed;
+}
+
+.presentation_header .signOutButton:hover {
+    background:#00868B;
+    color:white;
+}
+
+
+
+/*=================presentation sidebar=============*/
+.presentation_sidebar {
+    background: #FFF none repeat scroll 0 0;
+    border-right: 1px solid #ddd;
+    height: 100%;
+    left: 0;
+    padding: 120px 0 50px;
+    position: fixed;
+    top: 0;
+    width: 350px;
+    z-index: 2;
+    -webkit-transition: left 0.3s linear;
+    -moz-transition: left 0.3s linear;
+    -ms-transition: left 0.3s linear;
+    -o-transition: left 0.3s linear;
+    transition: left 0.3s linear;
+}
+.Function {
+	position: fixed;
+    top: 150px;
+	left:20px;
+	width: 300px;
+	height: 50px;
+	background:#00868B;
+	color: white;
+	font-size: 23px;
+	border-radius: 20px;
+}
+.sidebar {
+    position: fixed;
+    top: 250px;
+    left:20px;
+    width: 350px;
+}
+.package_side {
+	margin-top:130px;
+  position: absolute;
+	margin-left:40px;
+	width: 200px;
+	height: 30px;
+	background-color: white;
+	text-align:center;
+	color: black;
+	font-size: 20px;
+	border-radius: 20px;
+	border:2px solid #00868B;
+
+}
+
+.package_side:hover {
+	background:#AEEEEE;
+	color:white;
+}
+
+.Prompt_logo {
+	height:80px;
+}
+
+.logo_title{
+	position: absolute;
+	right: 30px;
+	font-size: 40px;
+}
+
+/*=================Table=============*/
+.table{
+	position: absolute;
+	top: 100px;
+	left:370px;
+	width: 75%;
+	height: 75%;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+  background-color: #00868B;
+  color: white;
+}

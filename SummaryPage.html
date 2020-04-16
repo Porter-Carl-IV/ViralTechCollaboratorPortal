@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="css/asset/shortcode-common.css">
+	<link rel="stylesheet" href="css/Summarypage.css">
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="/controller.js/"></script>
+	<title>TGEN</title>
+	<!--favicon icon-->
+	<link rel="icon" href="images/favicon.png">
+</head>
+<body class="spresentation">
+<!-- =========================================Start header section== =======================================-->
+		<header class="presentation_header">
+	<div class="container-fluid">
+    	<div class="row">
+        	<div class="col-sm-2">
+          	<img src="images/logo.png" class="logo" alt="logo" height="50" width="150">
+
+        	</div>
+					<div class="title">
+	            <center><a id="summaryTitle">Summary Page</a></center>
+	        </div>
+    	</div>
+	</div>
+	<button class = "signOutButton" align="right" onclick="signOut();">Sign out</button>
+
+</header>
+
+<!-- =========================================End header section=========================================-->
+
+
+<!-- =========================================Start Sidebar section== =======================================-->
+    <div class="presentation_sidebar">
+		<style>
+		button:hover {
+			background:#00CDCD;
+		}
+		</style>
+			<center><button class="Function" onclick="navCreatePackage();">Create New Package</button></center>
+
+
+
+		<div class="sidebar" id="buttons">
+
+		</div>
+
+
+	</div>
+
+<!-- =========================================Start right side=========================================-->
+	<div class="right_sidebar" id="summaryButtons">
+		<button class="botton_section" onclick ="navMetadata();">MetaData Form</button><br>
+
+		<button class="botton_section">Generate sample labels</button>
+
+		<button class="botton_section" onclick ="trackingNumber();">Enter Tracking #</button><br>
+
+
+	</div>
+
+<!-- =========================================Process bar=========================================-->
+	<div class="process_bar" id="progressBar">
+
+	</div>
+	<script>
+	initialize(function(){createButtons("buttons", function(){loadSummaryPage();});});
+	</script>
+
+<!-- =========================================Back bar=========================================-->
+
+
+</body>
+</html>

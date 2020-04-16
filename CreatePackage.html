@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-US" class="no-js">
+<head>
+	<link rel="stylesheet" href="css/asset/shortcode-common.css">
+	<link rel="stylesheet" href="css/CreatePackage.css">
+	<title>TGEN</title>
+	<script src="/controller.js/"></script>
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+</head>
+<body class="spresentation">
+<!-- =========================================Start header section== =======================================-->
+    <header class="presentation_header">
+		<a href="#" class="logo"><img src="images/logo.png" alt="logo"></a>
+        <div class="title">
+            <center><a>Create New Package</a></center>
+        </div>
+    </header>
+<!-- =========================================End header section=========================================-->
+<div class="presentation_sidebar">
+<button class="Function" onClick="window.location.href = '/tgen/CreatePackage.html';">Create New Package</button>
+	<style>
+		button:hover {
+			background:#00CDCD;
+		}
+		</style>
+	<div class="sidebar" id="buttons">
+
+	</div>
+	<script>
+	initialize(function(){createButtons("buttons");});
+	</script>
+</div>
+
+<!-- =========================================Start data entry =========================================-->
+<div class="right_sidebar">
+  <div class="botton_section">
+			<a>Please Enter Number of Samples:</a>
+			<input class="tracking_box" type="text" id="samples" name="samples" min="1" max="500">
+			<button class="save_button" type="button" onclick = "createNewPackage();">Create</button>
+		</div>
+	<script>
+
+	</script>
+</div>
+
+</body>
+
+</html>
