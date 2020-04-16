@@ -1,0 +1,90 @@
+/*===========presentation header style===============*/
+body.spresentation {
+  padding-top: 120px;
+}
+header.presentation_header {
+    background: #fff;
+    border-bottom: 1px solid #eaeef4;
+    box-shadow: 0 0 20px rgba(90, 70, 87, 0.12);
+    left: 0;
+    padding: 20px 50px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+}
+.presentation_header a.logo {
+    display: block;
+    line-height: 53px;
+}
+.presentation_header .header_right ul li {
+    display: inline-block;
+    list-style: none;
+}
+.presentation_header .header_right ul li a {
+    border-radius: 3px;
+    color: #2d3139;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 50px;
+    letter-spacing: 1px;
+    line-height: 50px;
+    margin-left: 8px;
+    padding: 0 30px;
+    text-transform: uppercase;
+}
+.presentation_header .header_right ul li.free_download a {
+    background: #546175;
+    color: #fff;
+}
+.presentation_header .header_right ul li.purchase a {
+    background: #247cff;
+    color: #fff;
+}
+
+
+.title{
+	position: absolute;
+	top:25px;
+	left:800px;
+	font-size: 30px;
+}
+
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  margin-left:auto;
+  margin-right:auto;
+}
+th, td {
+  padding: 5px;
+  text-align: left;
+}
+
+h2{
+  text-align:center;
+}
+
+
+.presentation_header .signOutButton {
+  background-color: #e7e7e7; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 150px;
+    height: 50px;
+  left: 90%;
+  top: 2%;
+  position: fixed;
+}
+
+.presentation_header .signOutButton:hover {
+    background:#00868B;
+    color:white;
+}
