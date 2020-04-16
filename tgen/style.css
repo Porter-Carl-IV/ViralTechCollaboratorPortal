@@ -43,28 +43,26 @@ header.presentation_header {
     background: #247cff;
     color: #fff;
 }
+
 .presentation_header .signOutButton {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-  position: fixed;
-  font-size: 18px;
-  color: white;
+  background-color: #e7e7e7; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
   width: 150px;
     height: 50px;
   left: 90%;
   top: 2%;
-  border-radius: 20px;
-  background:#00868B;
+  position: fixed;
 }
 
 .presentation_header .signOutButton:hover {
-    background:#AEEEEE;
+    background:#00868B;
     color:white;
-}
-
-.presentation_header .g-signin2 {
-  position: fixed;
-  left: 90%;
-  top: 3%;
 }
 
 
