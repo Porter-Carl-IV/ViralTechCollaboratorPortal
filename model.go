@@ -131,6 +131,11 @@ const sqlGetErrors =
 `SELECT package_errors
 FROM pims2.package
 WHERE package_id = $1;`
+const sqlGroupPackage =
+`SELECT exists(
+  SELECT 1
+  FROM pims2.package
+  WHERE package_group_id = $1 AND package_id = $2);`
 
 func main(){
   //Open database connection
@@ -312,9 +317,15 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   //Get config for user
@@ -393,9 +404,15 @@ func updatePackage( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   if( DEFAULT_MODE ) {
@@ -447,9 +464,15 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   //Get config for user
@@ -508,6 +531,12 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
     if jsonErr != nil {
       panic(jsonErr)
     }
+  }
+
+  //If user has expandable privalage, check saved data to see if they
+  //expanded it. If they did, add it to config
+  if returnVal.Expandable {
+    returnVal = checkExtraColumns( returnVal )
   }
 
   //Check Package Step ID
@@ -611,9 +640,15 @@ func addTracking( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   _, stepErr := db.Exec( sqlSetTrackingNumber, request.TrackingNumber, request.PackageID )
@@ -645,9 +680,15 @@ func newSample( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   id := reserveIDs( 1 )
@@ -688,9 +729,15 @@ func checkErrors( writer http.ResponseWriter, r *http.Request ) {
   }
 
   //Check Authentication
-  _, authErr := authenticate( request.AuthToken )
+  userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
     panic(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    panic(pacErr)
   }
 
   var errors string
@@ -731,6 +778,25 @@ func reserveIDs( numIDs int ) []int {
 
   return ids;
 
+}
+
+func authPackage( groupID int, packageID int ) error {
+  var exist bool
+
+  //Query package where groupID and PackageID are the ones given
+  row := db.QueryRow( sqlGroupPackage, groupID, packageID )
+  dbErr := row.Scan( &exist )
+
+  if dbErr != nil{
+    panic(dbErr)
+  }
+
+  //If the record with packageID and groupID doesn't exist, return error
+  if !exist {
+    return errors.New("Package not associated with group")
+  }
+
+  return nil;
 }
 
 //authenticate checks token to make sure it's valid.
@@ -793,6 +859,31 @@ func pullConfig( configID int ) Config {
   }
 
   return config;
+}
+
+func checkExtraColumns( config Spreadsheet ) Spreadsheet {
+
+  for index := 0; index < len(config.Metadata); index++ {
+    for key := range config.Metadata[index] {
+      if !inData( config.SpreadsheetConfig, key ) {
+        config.SpreadsheetConfig = append( config.SpreadsheetConfig, Column{ false, key, "text", nil } )
+        config.ColHeaders = append( config.ColHeaders, key )
+      }
+    }
+  }
+
+  return config;
+}
+
+func inData( config []Column, data string ) bool {
+
+  for index := 0; index < len( config ); index++ {
+    if config[index].Data == data {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 func getColHeaders( config Config ) []string {
