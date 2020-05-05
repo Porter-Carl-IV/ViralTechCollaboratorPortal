@@ -336,7 +336,7 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
   config := pullConfig(4)
 
   if( DEFAULT_MODE ){
-    returnString, sendErr := json.Marshal("Sucess")
+    returnString, sendErr := json.Marshal("Success")
     if sendErr != nil {
       log.Error( sendErr )
     }
@@ -347,7 +347,7 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
 
   formatErr := checkFormat( config , request.DataEntry )
   if formatErr != nil {
-    returnError, jsErr := json.Marshal(formatErr)
+    returnError, jsErr := json.Marshal(formatErr.Error())
     if jsErr != nil {
       log.Error( jsErr )
     }
@@ -379,12 +379,11 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
     log.Error(stepErr)
   }
 
-  returnString, sendErr := json.Marshal("Sucess")
+  returnString, sendErr := json.Marshal("Success")
   if sendErr != nil {
     log.Error( sendErr )
   }
-  //**TODO**
-  //Return .pdf version of shipping manifest
+
   writer.Write( returnString )
   return
 
@@ -420,7 +419,7 @@ func updatePackage( writer http.ResponseWriter, r *http.Request ) {
   }
 
   if( DEFAULT_MODE ) {
-    returnString, sendErr := json.Marshal("Sucess")
+    returnString, sendErr := json.Marshal("Success")
     if sendErr != nil {
       log.Error( sendErr );
     }
@@ -832,12 +831,37 @@ func authenticate( token string ) (string, error) {
 }
 
 func checkFormat( config Config, spreadsheet []map[string]string ) error {
+  var errorList []string
+  errorCount := 1
 
   //Loop through spreadsheet
   for row := 0; row < len( spreadsheet ); row++ {
-    for col := 0; col < len( spreadsheet[row] ); col++ {
+    for col := 0; col < len( config.SpreadsheetConfig ); col++ {
+      value, present := spreadsheet[row][config.SpreadsheetConfig[col].Data]
+      if !present {
+        errorList = append(errorList, fmt.Sprintf("Error %d: %s column left blank for sample %s" , errorCount, config.SpreadsheetConfig[col].Data, spreadsheet[row]["ID on Submitted Tube"]))
+        errorCount++
+        continue
+      }
 
+      switch config.SpreadsheetConfig[col].Type {
+      case "numeric":
+        _, intErr := strconv.Atoi( value )
+        _, floatErr := strconv.ParseFloat( value, 64 )
+
+        if intErr != nil && floatErr != nil {
+          errorList = append( errorList, fmt.Sprintf("Error %d: %s column expects numeric value for sample %s" , errorCount, config.SpreadsheetConfig[col].Data, spreadsheet[row]["ID on Submitted Tube"]))
+          errorCount++
+        }
+      case "text":
+      case "dropdown":
+      }
     }
+  }
+
+  if len(errorList) != 0 {
+    errorList = append( []string{ fmt.Sprintf( "Failed to submit package with %d errors, Please fix these errors:" , errorCount - 1 ) } , errorList... )
+    return errors.New( strings.Join( errorList, "\n" ) )
   }
 
   return nil

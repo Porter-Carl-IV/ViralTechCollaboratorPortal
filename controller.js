@@ -392,8 +392,6 @@ function insertPackage(){
     return;
   }
 
-  updatePackage();
-
   for( rowIndex = 0; rowIndex < window.spreadsheet.countRows(); rowIndex++ )
      {
        data[rowIndex] = {};
@@ -413,6 +411,20 @@ function insertPackage(){
        spreadsheet: data
      };
 
+     //Save temp metadata first
+     $.ajax({
+       type: 'post',
+       url: '/updatePackage/',
+       dataType: 'json',
+       contentType: 'application/json',
+       data:JSON.stringify(param),
+
+       success: function(response){
+         window.saved = true;
+       }
+     })
+
+     //Then insert into database
      $.ajax({
        type: 'post',
        url: '/insertPackage/',
@@ -421,6 +433,7 @@ function insertPackage(){
        data:JSON.stringify(param),
 
        success: function(response){
+           alert( response );
        }
      })
 }
