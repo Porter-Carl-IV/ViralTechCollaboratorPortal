@@ -60,14 +60,6 @@ function createButtons( divID, callback )
     if( window.packages[index].packageID == window.pacID ) {
       btn.style.backgroundColor = "#737373";
     }
-    else {
-      //btn.style.backgroundColor = "#00868B";
-    }
-    /*btn.style.color = "white";
-    btn.style.width = "220px";
-    btn.style.height = "45";
-    btn.style.fontSize = "23px";
-    btn.style.borderRadius = "20px";*/
 
 
     switch( window.packages[index].stepID )
@@ -487,7 +479,6 @@ function addNewColumn(){
       response.columnHeaders.push(columnHeader);
       response.spreadsheetConfig.push( { data: columnHeader, } );
 
-      alert( response.spreadsheetConfig);
       window.spreadsheet.updateSettings({
         columns: response.spreadsheetConfig,
         colHeaders: response.columnHeaders,
