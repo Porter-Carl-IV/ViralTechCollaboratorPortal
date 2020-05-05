@@ -108,6 +108,26 @@ function createButtons( divID, callback )
   }
   callback();
 }
+
+function getQRCodes( ){
+
+  var param = {
+    token: window.token,
+    packageID : parseInt(window.pacID),
+  };
+
+  $.ajax({
+    type: 'post',
+    url: '/printQR/',
+    dataType: 'json',
+    contentType: 'application/json',
+    data:JSON.stringify(param),
+
+    success: function( response ){
+      printJS({printable:response, type:'pdf', showModal:true });
+    }
+      });
+}
 function openMetadata( )
 {
   var container = document.getElementById('table');
@@ -315,7 +335,7 @@ function navSummaryPage( pacID ){
   }
 }
 
-function navErrorPage(  ){
+function navErrorEmailPage(  ){
   {
     /*alert("Communicate your resolution to TGen point of contact:\n" +
     "\n\n To: TGen@gmail.com" +
@@ -324,7 +344,7 @@ function navErrorPage(  ){
     "\n\n Message: Eg: Please proceed with all Samples, excluding problematic samples" +
     "\n\t\t\t Please do what you can to recover data for the problematic samples, ect.");
     */
-    window.location.href = "/tgen/ErrorPage.html#?id=" + getUrlVars()["id"];
+    window.location.href = "/tgen/SummaryPage.html#?pacid=" + window.pacID + "&id=" + window.token;;
   }
 }
 

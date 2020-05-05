@@ -13,7 +13,10 @@ import (
     "time"
     "strconv"
 
+    "github.com/jung-kurt/gofpdf"
+    "github.com/jung-kurt/gofpdf/contrib/barcode"
     _"github.com/lib/pq"
+    log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -145,13 +148,13 @@ func main(){
 
   db,dbErr = sql.Open("postgres", psqlInfo)
   if dbErr != nil {
-    panic(dbErr)
+    log.Error(dbErr)
   }
   defer db.Close()
 
   dbErr = db.Ping()
   if dbErr != nil{
-    panic(dbErr)
+    log.Error(dbErr)
   }
 
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request ){
@@ -165,6 +168,7 @@ func main(){
   http.HandleFunc( "/newSample/" , newSample )
   http.HandleFunc( "/addTracking/" , addTracking )
   http.HandleFunc( "/checkErrors/" , checkErrors )
+  http.HandleFunc( "/printQR/" , printQR )
   http.ListenAndServe( ":8080", nil )
 
 }
@@ -180,20 +184,20 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
   //Read parameters
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   //Parse parameters into struct
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication and get user email
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //config := pullConfig( 4 );
@@ -221,7 +225,7 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
 
     returnString, sendErr := json.Marshal( returnVal )
     if sendErr != nil{
-      panic(sendErr)
+      log.Error(sendErr)
     }
 
     writer.Write( returnString )
@@ -236,7 +240,7 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
 
     returnString, sendErr := json.Marshal("User not found")
     if sendErr != nil {
-      panic( sendErr );
+      log.Error( sendErr );
     }
 
     writer.Write( returnString )
@@ -250,14 +254,14 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
       case sql.ErrNoRows:
         returnString, sendErr := json.Marshal("Group has no current packages")
         if sendErr != nil {
-          panic( sendErr );
+          log.Error( sendErr );
         }
 
         writer.Write( returnString )
         return
       case nil:
       default:
-        panic(err)
+        log.Error(err)
       }
 
     returnData := make([]InitialReturn, packageCount)
@@ -265,7 +269,7 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
 
     rows, err := db.Query(sqlPackageQuery, groupID)
     if err != nil {
-      panic(err)
+      log.Error(err)
     }
     defer rows.Close()
 
@@ -273,7 +277,7 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
       err = rows.Scan(&returnData[count].PackageDate, &returnData[count].StepID, &returnData[count].PackageID, &returnData[count].ErrorCount )
       if err != nil {
         // handle this error
-        panic(err)
+        log.Error(err)
       }
       returnData[count].PackageDate = strings.Replace(returnData[count].PackageDate, "T00:00:00Z" , "", 1)
 
@@ -285,14 +289,14 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
     // get any error encountered during iteration
     err = rows.Err()
     if err != nil {
-      panic(err)
+      log.Error(err)
     }
 
     returnData = sortPackages( returnData )
 
     returnString, sendErr := json.Marshal( returnData )
     if sendErr != nil{
-      panic(sendErr)
+      log.Error(sendErr)
     }
 
     writer.Write( returnString )
@@ -307,25 +311,25 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
 
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   //Get config for user
@@ -334,7 +338,7 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
   if( DEFAULT_MODE ){
     returnString, sendErr := json.Marshal("Sucess")
     if sendErr != nil {
-      panic( sendErr )
+      log.Error( sendErr )
     }
 
     writer.Write( returnString )
@@ -345,7 +349,7 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
   if formatErr != nil {
     returnError, jsErr := json.Marshal(formatErr)
     if jsErr != nil {
-      panic( jsErr )
+      log.Error( jsErr )
     }
 
     writer.Write( returnError )
@@ -361,23 +365,23 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
 
     metaData, marshalErr := json.Marshal( request.DataEntry[index] )
     if marshalErr != nil {
-      panic(marshalErr)
+      log.Error(marshalErr)
     }
 
     _, err := db.Exec( sqlSampleInsert, id , metaData )
     if err != nil {
-      panic(err)
+      log.Error(err)
     }
   }
 
   _, stepErr := db.Exec( sqlSetStep, 2, request.PackageID )
   if stepErr != nil {
-    panic(stepErr)
+    log.Error(stepErr)
   }
 
   returnString, sendErr := json.Marshal("Sucess")
   if sendErr != nil {
-    panic( sendErr )
+    log.Error( sendErr )
   }
   //**TODO**
   //Return .pdf version of shipping manifest
@@ -394,31 +398,31 @@ func updatePackage( writer http.ResponseWriter, r *http.Request ) {
 
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   if( DEFAULT_MODE ) {
     returnString, sendErr := json.Marshal("Sucess")
     if sendErr != nil {
-      panic( sendErr );
+      log.Error( sendErr );
     }
 
     writer.Write( returnString )
@@ -428,18 +432,18 @@ func updatePackage( writer http.ResponseWriter, r *http.Request ) {
 
   insertData, sendErr := json.Marshal( request.DataEntry )
   if sendErr != nil{
-    panic(sendErr)
+    log.Error(sendErr)
   }
 
   //Insert temp data into temp column
   _, err := db.Exec( sqlTempUpdate, insertData, request.PackageID )
   if err != nil {
-    panic(err)
+    log.Error(err)
   }
 
   returnString, sendErr := json.Marshal("Package Saved Successfully")
   if sendErr != nil {
-    panic( sendErr );
+    log.Error( sendErr );
   }
 
   writer.Write( returnString )
@@ -454,25 +458,25 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
 
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   //Get config for user
@@ -514,7 +518,7 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
     //Parse return struct into JSON string
     returnString, sendErr := json.Marshal( returnVal );
     if sendErr != nil{
-      panic(sendErr);
+      log.Error(sendErr);
     }
 
     //Write return JSON string into the response
@@ -529,7 +533,7 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
   if dbErr == nil{
     jsonErr = json.Unmarshal([]byte(spreadsheetMap), &returnVal.Metadata)
     if jsonErr != nil {
-      panic(jsonErr)
+      log.Error(jsonErr)
     }
   }
 
@@ -544,7 +548,7 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
   row = db.QueryRow( sqlStepQuery , returnVal.PackageID )
   dbErr = row.Scan( &stepID )
   if dbErr != nil{
-    panic( dbErr )
+    log.Error( dbErr )
   }
 
   //If package step is greater than 1, set all columns to read only
@@ -558,7 +562,7 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
   //Parse return struct into JSON string
   returnString, sendErr := json.Marshal( returnVal )
   if sendErr != nil{
-    panic(sendErr)
+    log.Error(sendErr)
   }
 
   //Write return JSON string into the response
@@ -569,19 +573,19 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
 func newPackage( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   groupID := getGroupId( userEmail )
@@ -589,7 +593,7 @@ func newPackage( writer http.ResponseWriter, r *http.Request ) {
 
     returnString, sendErr := json.Marshal("User not found")
     if sendErr != nil {
-      panic( sendErr );
+      log.Error( sendErr );
     }
 
     writer.Write( returnString )
@@ -609,17 +613,17 @@ func newPackage( writer http.ResponseWriter, r *http.Request ) {
 
   insertData, sendErr := json.Marshal( insertDataMap )
   if sendErr != nil{
-    panic(sendErr)
+    log.Error(sendErr)
   }
 
   _, err := db.Exec( sqlTempUpdate, insertData, packageID )
   if err != nil {
-    panic(err)
+    log.Error(err)
   }
 
   returnPacID, sendErr := json.Marshal(packageID)
   if sendErr != nil {
-    panic( sendErr );
+    log.Error( sendErr );
   }
 
   writer.Write( returnPacID )
@@ -630,35 +634,35 @@ func newPackage( writer http.ResponseWriter, r *http.Request ) {
 func addTracking( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   _, stepErr := db.Exec( sqlSetTrackingNumber, request.TrackingNumber, request.PackageID )
   if stepErr != nil {
-    panic(stepErr)
+    log.Error(stepErr)
   } else {
 
     returnString, sendErr := json.Marshal("Success")
     if sendErr != nil {
-      panic( sendErr )
+      log.Error( sendErr )
     }
     //**TODO**
     //Return .pdf version of shipping manifest
@@ -670,25 +674,25 @@ func addTracking( writer http.ResponseWriter, r *http.Request ) {
 func newSample( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   id := reserveIDs( 1 )
@@ -705,12 +709,12 @@ func newSample( writer http.ResponseWriter, r *http.Request ) {
   //Insert temp data into temp column
   _, err := db.Exec( sqlTempUpdate, spreadsheetMap, request.PackageID )
   if err != nil {
-    panic(err)
+    log.Error(err)
   }
 
   returnString, sendErr := json.Marshal("{\"ID on Submitted Tube\":\"" + strconv.Itoa(id[0]) + "\"}")
   if sendErr != nil {
-    panic( sendErr );
+    log.Error( sendErr );
   }
 
   writer.Write( returnString )
@@ -719,32 +723,32 @@ func newSample( writer http.ResponseWriter, r *http.Request ) {
 func checkErrors( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
-    panic(readErr)
+    log.Error(readErr)
   }
 
   var request Param
   jsonErr := json.Unmarshal(body, &request)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   //Check Authentication
   userEmail, authErr := authenticate( request.AuthToken )
   if authErr != nil {
-    panic(authErr)
+    log.Error(authErr)
   }
 
   //Make sure package belongs to user
   pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
   if pacErr != nil {
-    panic(pacErr)
+    log.Error(pacErr)
   }
 
   var errors string
   row := db.QueryRow( sqlGetErrors , request.PackageID )
   dbErr := row.Scan( &errors )
   if dbErr != nil{
-    panic(dbErr)
+    log.Error(dbErr)
   }
 
   writer.Write( []byte( errors ) );
@@ -758,7 +762,7 @@ func reserveIDs( numIDs int ) []int {
   rows, err := db.Query(sqlReserveIDs, numIDs)
   if err != nil {
     // **TODO** handle this error better than this
-    panic(err)
+    log.Error(err)
   }
   defer rows.Close()
 
@@ -766,14 +770,14 @@ func reserveIDs( numIDs int ) []int {
     err = rows.Scan(&ids[count])
     if err != nil {
       // handle this error
-      panic(err)
+      log.Error(err)
     }
     count++
   }
   // get any error encountered during iteration
   err = rows.Err()
   if err != nil {
-    panic(err)
+    log.Error(err)
   }
 
   return ids;
@@ -788,7 +792,7 @@ func authPackage( groupID int, packageID int ) error {
   dbErr := row.Scan( &exist )
 
   if dbErr != nil{
-    panic(dbErr)
+    log.Error(dbErr)
   }
 
   //If the record with packageID and groupID doesn't exist, return error
@@ -844,18 +848,18 @@ func pullConfig( configID int ) Config {
 
   file, err := os.Open("config2.txt") // For read access.
   if err != nil {
-     panic(err)
+     log.Error(err)
   }
 
   data := make([]byte, 5000)
   count, err2 := file.Read(data)
   if err2 != nil {
-    panic(err2)
+    log.Error(err2)
   }
 
   jsonErr := json.Unmarshal(data[:count], &config)
   if jsonErr != nil {
-    panic(jsonErr)
+    log.Error(jsonErr)
   }
 
   return config;
@@ -923,7 +927,7 @@ func createNewPackage( groupID int ) int {
 
   err := db.QueryRow( sqlPackageInsert, groupID , currentTime.Format("2006-01-02") , 1 ).Scan(&packageID)
   if err != nil {
-    panic(err)
+    log.Error(err)
   }
 
   return packageID;
@@ -949,4 +953,153 @@ func sortPackages( packages []InitialReturn ) []InitialReturn {
   }
 
   return packages
+}
+
+func printQR( writer http.ResponseWriter, r *http.Request ) {
+
+  body, readErr := ioutil.ReadAll(r.Body)
+  if readErr != nil {
+    log.Error(readErr)
+  }
+
+  var request Param
+  jsonErr := json.Unmarshal(body, &request)
+  if jsonErr != nil {
+    log.Error(jsonErr)
+  }
+
+  //Check Authentication
+  userEmail, authErr := authenticate( request.AuthToken )
+  if authErr != nil {
+    log.Error(authErr)
+  }
+
+  //Make sure package belongs to user
+  pacErr := authPackage( getGroupId( userEmail ), request.PackageID )
+  if pacErr != nil {
+    log.Error(pacErr)
+  }
+
+  pdf := makeBlankPDFTemplate()
+
+  var spreadsheetMapString string
+  var spreadsheetMap []map[string]string
+  row := db.QueryRow( sqlGetMetaData , request.PackageID )
+  dbErr := row.Scan( &spreadsheetMapString )
+  if dbErr == nil{
+    jsonErr = json.Unmarshal([]byte(spreadsheetMapString), &spreadsheetMap)
+    if jsonErr != nil {
+      log.Error(jsonErr)
+    }
+  }
+
+  var sampIDs []int
+  for index := 0; index < len(spreadsheetMap); index++ {
+    tempInt, err := strconv.Atoi(spreadsheetMap[index]["ID on Submitted Tube"])
+    if err!=nil{
+      log.Error(err)
+    }
+    sampIDs = append( sampIDs, tempInt)
+  }
+
+  pdf = makeBarcodePDFFromID( pdf, "pims2", sampIDs )
+
+  saveErr := pdf.OutputFileAndClose( fmt.Sprintf("QRCodes/%d/Package_%d.pdf" , getGroupId( userEmail ) , request.PackageID ) )
+  if saveErr != nil {
+    log.Error(saveErr)
+  }
+
+  returnString, sendErr := json.Marshal( fmt.Sprintf("QRCodes/%d/Package_%d.pdf" , getGroupId( userEmail ) , request.PackageID ) )
+  if sendErr != nil {
+    log.Error( sendErr );
+  }
+
+  writer.Write( returnString )
+
+  return
+
+}
+
+//Method written by TGen North
+func makeBlankPDFTemplate() *gofpdf.Fpdf{
+	pdf := gofpdf.New("P", "in", "A4", "")
+	pdf.SetMargins(0, 0, 0)
+	pdf.SetAutoPageBreak(false, 1)
+	return pdf
+}
+
+//Method written by TGen North
+func makeBarcodePDFFromID(pdf *gofpdf.Fpdf, schema string, sampleIDs []int) *gofpdf.Fpdf {
+	//pass in an array of sample ids and build up the barcodes from the database
+	//pass in the pdf existing pdf to append to and return the pointer  to make it clear that is the pdf we have modified
+
+	s := gofpdf.SizeType{1, 1}// this is because our barcodes are 1x1
+
+	for idx := 0; idx < len(sampleIDs); idx++ {
+		log.Debug("sub_sample ID: ", sampleIDs[idx])
+		subsampleLocation := -1
+		sampleProject := -1
+		subsampleParent := -1
+		subsampleSpecies := ""
+		sampleType := ""
+
+		db.QueryRow(`SELECT sub_sample_location, sub_sample_parent, project_id, species_code, sub_sample_data->>'sample_type'
+			FROM `+schema+`.sub_sample
+				JOIN `+schema+`.sample ON sub_sample_parent = sample.global_id
+				JOIN `+schema+`.project ON sample.sample_data ->> 'project_name' = project_name
+				JOIN `+schema+`.species ON sub_sample_data ->>'species_name' = species_name
+				WHERE sub_sample.global_id = $1
+				`, (int)(sampleIDs[idx])).Scan(&subsampleLocation, &subsampleParent, &sampleProject, &subsampleSpecies, &sampleType)
+
+		log.Debug("SL: ", subsampleLocation, " SP: ", subsampleParent, " SPRO: ", sampleProject, " SS: ", subsampleSpecies)
+
+		//use the location given and the getLocationAndParent function to get the locations we need.
+		//this is only valid when the selected thing is a rack
+		log.Debug("Subsample location: ", subsampleLocation)
+		if subsampleLocation <= 0 {
+			log.Error("Invalid location given for : ", sampleIDs[idx])
+		}
+		cellName, boxID := getLocationAndParent(schema, subsampleLocation)
+		log.Debug("Box ID: ", boxID)
+		boxName, rackID := getLocationAndParent(schema, boxID)
+		log.Debug("Rack ID: ", rackID)
+		//	freezerName, _ := getLocationAndParent(pgtx, schema, rackID)
+		log.Debug(sampleType)
+		pdf.AddPageFormat("L", s) //create a new page to put the label on
+		var opt gofpdf.ImageOptions
+		opt.ImageType = "png"
+		pdf.SetFont("Arial", "B", 7)
+		pdf.SetFillColor(100, 100, 100)
+		//.CellFormat(width, height, text, 1 for newline 0 for not, letter abbreviation for text format C = Center, false, 0, "")
+		key := barcode.RegisterDataMatrix(pdf, "tg@"+strconv.Itoa(sampleIDs[idx])) //this is the barcode
+		barcode.Barcode(pdf, key, .35, 0, .3, .5, false)                           //size and postition of barcode
+//		pdf.ImageOptions("cap.png", 0, 0, .2, .5, false, opt, 0, "")               //the cap sticker on the left
+		if sampleType == "DNA" {
+			pdf.CellFormat(.95, .3, sampleType, "0", 1, "R", false, 0, "")             //this is the DNA flag in the top right
+		}else{
+			pdf.CellFormat(.95, .3, "", "0", 1, "R", false, 0, "")             //this is for sapcing if no DNA flag
+		}
+		pdf.Ln(.2) //makes space for rest of text
+		pdf.CellFormat(1, .1, "Sample #: "+strconv.Itoa(subsampleParent), "1", 1, "C", false, 0, "") //this is the parent#
+		pdf.SetFont("Arial", "B", 5)
+		pdf.CellFormat(1, .1, sampleType +" #: "+strconv.Itoa(sampleIDs[idx]), "1", 1, "C", false, 0, "") //this is the TG number (global_id) the unique identifier
+		pdf.CellFormat(1, .1, "Box: "+boxName, "1", 1, "C", false, 0, "")              // this is the box and cell
+		pdf.CellFormat(1, .1, "Cell: "+cellName, "1", 1, "C", false, 0, "")            // this is the box and cell
+		pdf.CellFormat(.5, .1, strconv.Itoa(sampleProject), "1", 0, "C", false, 0, "") //this is the project code
+		pdf.CellFormat(.5, .1, subsampleSpecies, "1", 1, "C", false, 0, "")            // this is the species code
+
+	}
+	return pdf
+}
+
+//Method written by TGen North
+func getLocationAndParent( schema string, locID int) (string, int) { //this gets the location name and parent location id for the locaion id passed in
+	mylocation := ""
+	parentid := 0
+	if err := db.QueryRow(`SELECT location_name, location_parent FROM `+schema+`.location WHERE location.location_id  = $1`, locID).Scan(&mylocation, &parentid); err != nil {
+		log.Error("locID: ", locID)
+		log.Error(err)
+	}
+	return mylocation, parentid
+
 }
