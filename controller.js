@@ -56,18 +56,18 @@ function createButtons( divID, callback )
     btn.name = window.packages[index].packageID;
     btn.value = window.packages[index].packageDate;
     btn.id = window.packages[index].packageID;
-    //btn.className = "Function";
+    btn.className = "package_side";
     if( window.packages[index].packageID == window.pacID ) {
       btn.style.backgroundColor = "#737373";
     }
     else {
-      btn.style.backgroundColor = "#00868B";
+      //btn.style.backgroundColor = "#00868B";
     }
-    btn.style.color = "white";
+    /*btn.style.color = "white";
     btn.style.width = "220px";
     btn.style.height = "45";
     btn.style.fontSize = "23px";
-    btn.style.borderRadius = "20px";
+    btn.style.borderRadius = "20px";*/
 
 
     switch( window.packages[index].stepID )

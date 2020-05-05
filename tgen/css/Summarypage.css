@@ -130,13 +130,15 @@ header.presentation_header {
 
 .package_side {
 	width: 220px;
-	height: 45px;
-	margin-bottom:40px;
+	height: 35px;
 	background:#00868B;
 	color: white;
 	font-size: 23px;
 	border-radius: 20px;
-
+}
+.package_side:hover {
+  background:#AEEEEE;
+	color:white;
 }
 
 
