@@ -337,14 +337,7 @@ function navSummaryPage( pacID ){
 
 function navErrorEmailPage(  ){
   {
-    /*alert("Communicate your resolution to TGen point of contact:\n" +
-    "\n\n To: TGen@gmail.com" +
-    "\n\n From: Your Email" +
-    "\n\n Subject: Sample Flag Resolution Submission #12345" +
-    "\n\n Message: Eg: Please proceed with all Samples, excluding problematic samples" +
-    "\n\t\t\t Please do what you can to recover data for the problematic samples, ect.");
-    */
-    window.location.href = "/tgen/SummaryPage.html#?pacid=" + window.pacID + "&id=" + window.token;;
+    window.location.href = "/tgen/ErrorEmailPage.html#?pacid=" + window.pacID + "&id=" + window.token;;
   }
 }
 
@@ -534,4 +527,34 @@ function trackingNumber()
     }
   })
 
+}
+
+function submitMessage(){
+  var param = {
+    token: window.token,
+    packageID : parseInt(window.pacID),
+    userMessage : {
+      subject: document.getElementById("helpForm").elements["subject"].value,
+      message: document.getElementById("helpForm").elements["message"].value,
+      currentToken: window.token,
+      currentPacID: parseInt(window.pacID),
+    },
+  };
+
+  $.ajax({
+    type: 'post',
+    url: '/addMessage/',
+    dataType: 'json',
+    contentType: 'application/json',
+    data:JSON.stringify(param),
+
+    success: function(response){
+      if( response == "Success" ) {
+        alert("Thank you for contacting us, someone will review your message and email you shortly");
+      } else {
+        alert("Something went wrong");
+      }
+
+    }
+  })
 }

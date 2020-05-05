@@ -15,7 +15,7 @@
     <title>TGEN</title>
 
     <!--favicon icon-->
-    <link rel="icon" href="images/favicon.png">
+    <link rel="icon" href="tgen/images/favicon.png">
 
     <!--google font-->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900" rel="stylesheet">
@@ -40,7 +40,8 @@
         	</div>
     	</div>
 	</div>
-	<button class = "signOutButton" align="right" onclick="signOut();">Sign out</button>
+    <button class = "gethelpButton" align="right" onclick="navErrorEmailPage();">Get Help</button>
+    <button class = "signOutButton" onclick="signOut();">Sign out</button>
 
 </header>
 
@@ -65,15 +66,12 @@
     <!-- =========================================Table Section=========================================-->
 </div>
 <div class="errorEmailDiv" id="errorEmailDiv">
-  <form action="">
-      <label for="fname">First Name</label>
-      <input type="text" id="fname" name="firstname" placeholder="Your name..">
-
-      <label for="lname">Last Name</label>
-      <input type="text" id="lname" name="lastname" placeholder="Your last name..">
+  <form id="helpForm" onsubmit="submitMessage();">
+      <label for="subject">Subject</label>
+      <input type="text" name="subject" placeholder="Your subject..">
 
       <label for="message">Message</label>
-      <textarea id="message" name="message" placeholder="Your message.." style="height:200px"></textarea>
+      <textarea name="message" placeholder="Your message.." style="height:200px"></textarea>
 
       <input type="submit" value="Submit">
     </form>

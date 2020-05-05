@@ -7,12 +7,8 @@ import (
 )
 
 type Config struct{
-  ConfigID int `json:"configID"`
   Expandable bool `json:"expandable"`
-  PoolLoc string `json:"poolLoc"`
   SpreadsheetConfig []Column `json:"spreadsheetConfig"`
-  NonPool []map[string]string `json:"nonPool"`
-  Pool []map[string]string `json:pool`
 }
 type Column struct{
   ReadOnly bool `json:"readOnly"`
@@ -23,9 +19,7 @@ type Column struct{
 
 func main(){
   var returnVal = Config {
-      ConfigID: 001,
       Expandable: true,
-      PoolLoc: "pims2.sample.json",
       SpreadsheetConfig: []Column{
         {
           ReadOnly : true,
@@ -72,62 +66,6 @@ func main(){
         {
           Data : "Desired Coverage (x)",
           Type : "numeric",
-        },
-      },
-      NonPool: []map[string]string{
-        {
-          "Table_Name" : "pims.sample",
-          "Key_Name" : "global_id",
-          "Type" : "Key",
-          "Spreadsheet_Name" : "ID on Submitted Tube",
-        },
-      },
-      Pool: []map[string]string{
-        {
-          "Name" : "Project Name",
-          "Type" : "String",
-          "Mandatory" : "true",
-        },
-        {
-          "Name" : "Sample Name" ,
-          "Type" : "String",
-          "Mandatory" : "true",
-        },
-        {
-          "Name" : "Species Name" ,
-          "Type" : "String",
-          "Mandatory" : "true",
-        },
-        {
-          "Name" : "Sample Type" ,
-          "Type" : "String",
-          "Mandatory" : "true",
-        },
-        {
-          "Name" : "Country of Isolation" ,
-          "Type" : "String",
-          "Mandatory" : "true",
-        },
-        {
-          "Name" : "Year of Sample Collection" ,
-          "Type" : "Int",
-          "Mandatory" : "false",
-        },
-        {
-          "Name" : "Template Input Type" ,
-          "Type" : "String",
-        },
-        {
-          "Name" : "Final DNA Input for WGS (ug)" ,
-          "Type" : "Int",
-        },
-        {
-          "Name" : "DNA QC method" ,
-          "Type" : "String",
-        },
-        {
-          "Name" : "Desired Coverage (x)" ,
-          "Type" : "int",
         },
       },
   }

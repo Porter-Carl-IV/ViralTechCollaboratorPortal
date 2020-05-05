@@ -42,6 +42,47 @@ header.presentation_header {
     background: #247cff;
     color: #fff;
 }
+.presentation_header .signOutButton {
+  background-color: #e7e7e7; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 150px;
+    height: 50px;
+  left: 90%;
+  top: 2%;
+  position: fixed;
+}
+
+.presentation_header .signOutButton:hover {
+    background:#00868B;
+    color:white;
+}
+
+.presentation_header .gethelpButton {
+  background-color: #e7e7e7; /* Green */
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 150px;
+  height: 50px;
+  left: 80%;
+  top: 2%;
+  position: fixed;
+}
+
+.presentation_header .gethelpButton:hover {
+    background:#00868B;
+    color:white;
+}
 .title{
 	position: absolute;
 	top:25px;

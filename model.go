@@ -57,6 +57,7 @@ type Param struct{
 	DataEntry []map[string]string `json:"spreadsheet"`
   SampleNumber int `json:"sampleNumber"`
   TrackingNumber string `json:"trackingNumber"`
+  UserMessage Message `json:"userMessage"`
 }
 
 type Spreadsheet struct{
@@ -75,18 +76,20 @@ type InitialReturn struct{
 }
 
 type Config struct{
-  ConfigID int `json:"configID"`
   Expandable bool `json:"expandable"`
-  PoolLoc string `json:"poolLoc"`
   SpreadsheetConfig []Column `json:"spreadsheetConfig"`
-  NonPool []map[string]string `json:"nonPool"`
-  Pool []map[string]string `json:pool`
 }
 type Column struct{
   ReadOnly bool `json:"readOnly"`
   Data string `json:"data"`
   Type string `json:"type"`
   Source []string  `json:"source"`
+}
+type Message struct{
+  Subject string `json:"subject"`
+  Message string `json:"message"`
+  CurrentToken string `json:"currentToken"`
+  CurrentPacID int `json:"currentPacID"`
 }
 
 var db *sql.DB
@@ -139,6 +142,15 @@ const sqlGroupPackage =
   SELECT 1
   FROM pims2.package
   WHERE package_group_id = $1 AND package_id = $2);`
+const sqlAddMessage =
+`UPDATE pims2.user
+SET user_messages = $1
+WHERE user_email = $2;`
+const sqlGetMessages =
+`SELECT user_messages
+FROM pims2.user
+WHERE user_email = $1;`
+
 
 func main(){
   //Open database connection
@@ -169,6 +181,7 @@ func main(){
   http.HandleFunc( "/addTracking/" , addTracking )
   http.HandleFunc( "/checkErrors/" , checkErrors )
   http.HandleFunc( "/printQR/" , printQR )
+  http.HandleFunc( "/addMessage/" , addMessage )
   http.ListenAndServe( ":8080", nil )
 
 }
@@ -630,6 +643,57 @@ func newPackage( writer http.ResponseWriter, r *http.Request ) {
 
 }
 
+func addMessage( writer http.ResponseWriter, r *http.Request ) {
+
+  body, readErr := ioutil.ReadAll(r.Body)
+  if readErr != nil {
+    log.Error(readErr)
+  }
+
+  var request Param
+  jsonErr := json.Unmarshal(body, &request)
+  if jsonErr != nil {
+    log.Error(jsonErr)
+  }
+
+  //Check Authentication
+  userEmail, authErr := authenticate( request.AuthToken )
+  if authErr != nil {
+    log.Error(authErr)
+  }
+
+  var messages []Message
+  var messageString string
+  row := db.QueryRow( sqlGetMessages , userEmail )
+  dbErr := row.Scan( &messageString )
+  if dbErr == nil{
+    jsonErr = json.Unmarshal([]byte(messageString), &messages)
+    if jsonErr != nil {
+      log.Error(jsonErr)
+    }
+  }
+
+  messages = append( messages, request.UserMessage )
+
+  insertData, sendErr := json.Marshal( messages )
+  if sendErr != nil{
+    log.Error(sendErr)
+  }
+
+  //Insert temp data into temp column
+  _, err := db.Exec( sqlAddMessage, insertData, userEmail )
+  if err != nil {
+    log.Error(err)
+  }
+
+  returnString, sendErr := json.Marshal("Success")
+  if sendErr != nil {
+    log.Error( sendErr );
+  }
+
+  writer.Write( returnString )
+
+}
 func addTracking( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
@@ -916,17 +980,12 @@ func inData( config []Column, data string ) bool {
 
 func getColHeaders( config Config ) []string {
   //Calculate the # of column headers in spreadsheet
-  headers := len(config.NonPool) + len(config.Pool)
-  colHeaders := make( []string, headers )
+  var colHeaders []string
 
   //Iterate through the pool and non-pool maps in the config, adding the names
   //of the column headers to the string slice ColHeaders
-  for index := 0; index < headers; index++ {
-    if( index >= len( config.NonPool ) ) {
-      colHeaders[index] = config.Pool[index - len( config.NonPool )]["Name"]
-    } else {
-      colHeaders[index] = config.NonPool[index]["Spreadsheet_Name"]
-    }
+  for index := 0; index < len( config.SpreadsheetConfig ); index++ {
+    colHeaders = append( colHeaders, config.SpreadsheetConfig[index].Data )
   }
 
   return colHeaders
