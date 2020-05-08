@@ -25,7 +25,6 @@ const (
   user       = "capstone"
   password   = "admin"
   dbname     = "pmi"
-  DEFAULT_MODE = false
   USER_NOT_IN_DATABASE = -1
   layoutISO = "2006-01-02"
   layoutUS  = "01-02-2006"
@@ -213,39 +212,6 @@ func initialize( writer http.ResponseWriter, r *http.Request ) {
     log.Error(authErr)
   }
 
-  //config := pullConfig( 4 );
-
-  //DEFAULT MODE
-  //Returns default values for testing purposes
-  if( DEFAULT_MODE ) {
-    var returnVal = []InitialReturn {
-      InitialReturn{
-        PackageID: 034,
-        StepID: 4,
-        PackageDate: "08-28-2019",
-      },
-      InitialReturn{
-        PackageID: 274,
-        StepID: 2,
-        PackageDate: "10-20-2019",
-      },
-      InitialReturn{
-        PackageID: 938,
-        StepID: 1,
-        PackageDate: "01-23-2020",
-      },
-    }
-
-    returnString, sendErr := json.Marshal( returnVal )
-    if sendErr != nil{
-      log.Error(sendErr)
-    }
-
-    writer.Write( returnString )
-
-    return
-  }
-
   var packageCount int;
 
   groupID := getGroupId( userEmail )
@@ -348,16 +314,6 @@ func insertPackage( writer http.ResponseWriter, r *http.Request ) {
   //Get config for user
   config := pullConfig(4)
 
-  if( DEFAULT_MODE ){
-    returnString, sendErr := json.Marshal("Success")
-    if sendErr != nil {
-      log.Error( sendErr )
-    }
-
-    writer.Write( returnString )
-    return
-  }
-
   formatErr := checkFormat( config , request.DataEntry )
   if formatErr != nil {
     returnError, jsErr := json.Marshal(formatErr.Error())
@@ -431,17 +387,6 @@ func updatePackage( writer http.ResponseWriter, r *http.Request ) {
     log.Error(pacErr)
   }
 
-  if( DEFAULT_MODE ) {
-    returnString, sendErr := json.Marshal("Success")
-    if sendErr != nil {
-      log.Error( sendErr );
-    }
-
-    writer.Write( returnString )
-
-    return
-  }
-
   insertData, sendErr := json.Marshal( request.DataEntry )
   if sendErr != nil{
     log.Error(sendErr)
@@ -502,43 +447,6 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
   returnVal.PackageID = request.PackageID
   returnVal.SpreadsheetConfig = config.SpreadsheetConfig
 
-
-  if( DEFAULT_MODE ) {
-    fmt.Println(request.PackageID)
-    fmt.Println(request.AuthToken)
-    //Create the return struct and add col headers to it
-    returnVal.Metadata = []map[string]string {
-      { "Project Name":"MoldovaSeq-Yale" , "Id on submitted tube":"TG252151" ,
-        "Sample Name":"111-20301-18" , "Species Name" : "Mycobacterium tuberculosis" ,
-        "Sample Type" : "DNA" , "Country of Isolation" : "Moldova" ,
-        "Year of Sample Collection" : "2019" , "Template Input Type" : "isolate DNA" ,
-        "Final DNA Input for WGS (ug)" : "1" , "DNA QC method" : "Qubit HS dsDNA" ,
-        "Desired Coverage(x)" : "100" },
-        { "Project Name":"MoldovaSeq-Yale" , "Id on submitted tube":"TG252153" ,
-           "Sample Name":"111-20109-18" , "Species Name" : "Mycobacterium tuberculosis" ,
-            "Sample Type" : "DNA" , "Country of Isolation" : "Moldova" ,
-            "Year of Sample Collection" : "2019" , "Template Input Type" :
-            "isolate DNA" , "Final DNA Input for WGS (ug)" : "1" ,
-            "DNA QC method" : "Qubit HS dsDNA" , "Desired Coverage(x)" : "100" },
-        { "Project Name":"MoldovaSeq-Yale" , "Id on submitted tube":"TG252155" ,
-          "Sample Name":"111-19944-18" , "Species Name" : "Mycobacterium tuberculosis" ,
-          "Sample Type" : "DNA" , "Country of Isolation" : "Moldova" ,
-          "Year of Sample Collection" : "2019" , "Template Input Type" : "isolate DNA" ,
-          "Final DNA Input for WGS (ug)" : "1" , "DNA QC method" :
-          "Qubit HS dsDNA" , "Desired Coverage(x)" : "100" } }
-
-    //Parse return struct into JSON string
-    returnString, sendErr := json.Marshal( returnVal );
-    if sendErr != nil{
-      log.Error(sendErr);
-    }
-
-    //Write return JSON string into the response
-    writer.Write( returnString );
-
-    return
-  }
-
   var spreadsheetMap string
   row := db.QueryRow( sqlGetMetaData , returnVal.PackageID )
   dbErr := row.Scan( &spreadsheetMap )
@@ -582,6 +490,9 @@ func generateSpreadsheet( writer http.ResponseWriter, r *http.Request ) {
 
 }
 
+//New Package creates a new package on the database
+//It takes number of samples as a parameter, and reserves that many sample IDs from the sample table
+//Once the IDs have been reserved, it places those ids in the packages temp metadata
 func newPackage( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
@@ -643,6 +554,8 @@ func newPackage( writer http.ResponseWriter, r *http.Request ) {
 
 }
 
+//Add message takes a message struct, converts it to a json object and
+//appends that object to the users message json blob
 func addMessage( writer http.ResponseWriter, r *http.Request ) {
 
   body, readErr := ioutil.ReadAll(r.Body)
@@ -694,6 +607,9 @@ func addMessage( writer http.ResponseWriter, r *http.Request ) {
   writer.Write( returnString )
 
 }
+
+//Add tracking takes a tracking number and inserts it into the database
+//tracking number is inserted into the package tracking id column
 func addTracking( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
@@ -734,6 +650,8 @@ func addTracking( writer http.ResponseWriter, r *http.Request ) {
   }
 }
 
+//Add sample reserves a new sample id from the sample relation
+//Once id has been reserved, that id is added to the packages temp metadata json blob
 func newSample( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
@@ -783,6 +701,8 @@ func newSample( writer http.ResponseWriter, r *http.Request ) {
   writer.Write( returnString )
 }
 
+//Function check errors checks the database for the errors associated with the
+//package id
 func checkErrors( writer http.ResponseWriter, r *http.Request ) {
   body, readErr := ioutil.ReadAll(r.Body)
   if readErr != nil {
@@ -817,6 +737,9 @@ func checkErrors( writer http.ResponseWriter, r *http.Request ) {
   writer.Write( []byte( errors ) );
 }
 
+
+//reserve ids increments the pims2.sample sample_id
+//returns an array full of the reserved ids
 func reserveIDs( numIDs int ) []int {
   ids := make( []int, numIDs )
 
@@ -847,6 +770,9 @@ func reserveIDs( numIDs int ) []int {
 
 }
 
+//Auth Package checks to make sure that the package is associated with the group
+//This is necessary, because otherwise users could change the package_id in the
+//url fragment, and access other users package information
 func authPackage( groupID int, packageID int ) error {
   var exist bool
 
@@ -894,6 +820,9 @@ func authenticate( token string ) (string, error) {
 
 }
 
+//Check Format function takes a spreadsheet map that represents the metaData
+//It then iterates through every single field, and checks to make sure the types match
+//It also checks for empty fields
 func checkFormat( config Config, spreadsheet []map[string]string ) error {
   var errorList []string
   errorCount := 1
@@ -903,16 +832,20 @@ func checkFormat( config Config, spreadsheet []map[string]string ) error {
     for col := 0; col < len( config.SpreadsheetConfig ); col++ {
       value, present := spreadsheet[row][config.SpreadsheetConfig[col].Data]
       if !present {
+        //If the key isn't there, then that column was left blank. Add a missing entry error to the string slice
         errorList = append(errorList, fmt.Sprintf("Error %d: %s column left blank for sample %s" , errorCount, config.SpreadsheetConfig[col].Data, spreadsheet[row]["ID on Submitted Tube"]))
         errorCount++
         continue
       }
 
+      //Check the config type for that field
+      //In the future, more types can be added or changed to increase accuracy
       switch config.SpreadsheetConfig[col].Type {
       case "numeric":
         _, intErr := strconv.Atoi( value )
         _, floatErr := strconv.ParseFloat( value, 64 )
 
+        //If the conversion returns an error, then the types are mismatched
         if intErr != nil && floatErr != nil {
           errorList = append( errorList, fmt.Sprintf("Error %d: %s column expects numeric value for sample %s" , errorCount, config.SpreadsheetConfig[col].Data, spreadsheet[row]["ID on Submitted Tube"]))
           errorCount++
@@ -924,13 +857,21 @@ func checkFormat( config Config, spreadsheet []map[string]string ) error {
   }
 
   if len(errorList) != 0 {
+    //Add error count message to the front of the slice
     errorList = append( []string{ fmt.Sprintf( "Failed to submit package with %d errors, Please fix these errors:" , errorCount - 1 ) } , errorList... )
+    //Join all the error messages with new lines between, then create an error with it
+    //Using string slice so that this can be handled differently in future,
+    //if we also want to display errors individually in cells or something we can return the string slice instead
     return errors.New( strings.Join( errorList, "\n" ) )
   }
 
   return nil
 }
 
+//Pull config method currently pulls from text file. However configuration is just a json object
+//Pull config takes config id, so configurations can all be grouped in one text file on the server
+//This way configurations can be pulled quickly without making database sql calls
+//Alternatively if it's faster or more efficient, configurations can be stored on the group relation
 func pullConfig( configID int ) Config {
   var config Config
 
@@ -953,6 +894,7 @@ func pullConfig( configID int ) Config {
   return config;
 }
 
+//Check extra columns cleans metadata to find any keys not found in the config file
 func checkExtraColumns( config Spreadsheet ) Spreadsheet {
 
   for index := 0; index < len(config.Metadata); index++ {
@@ -967,6 +909,7 @@ func checkExtraColumns( config Spreadsheet ) Spreadsheet {
   return config;
 }
 
+//In data method checks to see if string key is in the column data
 func inData( config []Column, data string ) bool {
 
   for index := 0; index < len( config ); index++ {
@@ -978,6 +921,7 @@ func inData( config []Column, data string ) bool {
   return false;
 }
 
+//Get column headers gets all the column headers from the config data
 func getColHeaders( config Config ) []string {
   //Calculate the # of column headers in spreadsheet
   var colHeaders []string
@@ -991,6 +935,7 @@ func getColHeaders( config Config ) []string {
   return colHeaders
 }
 
+//Get group id queries the database to find the group id associated with the user
 func getGroupId( userEmail string ) int {
   var groupID int
 
@@ -1004,6 +949,7 @@ func getGroupId( userEmail string ) int {
   return groupID
 }
 
+//Create new package creates a new package and gives it the current time
 func createNewPackage( groupID int ) int {
   var packageID int;
   currentTime := time.Now()
@@ -1016,6 +962,9 @@ func createNewPackage( groupID int ) int {
   return packageID;
 }
 
+//Sort package sorts a list of packages based on date
+//Newest packages are sorted to be first
+//Uses bubble sort
 func sortPackages( packages []InitialReturn ) []InitialReturn {
   var tempPackage InitialReturn
   sorted := false;
@@ -1038,6 +987,10 @@ func sortPackages( packages []InitialReturn ) []InitialReturn {
   return packages
 }
 
+//Print QR method uses the TGen North code to populate a .pdf with QR codes
+//Once it has the QR codes, it saves the pdf on the server in the groups QR folder
+//The .pdf is saved under the format "package_#", with # being the package id
+//After saving, it returns the filepath to the http caller
 func printQR( writer http.ResponseWriter, r *http.Request ) {
 
   body, readErr := ioutil.ReadAll(r.Body)
