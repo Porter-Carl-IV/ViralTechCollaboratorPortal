@@ -1,0 +1,102 @@
+body
+{
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: white;
+  color: black;
+}
+header
+{
+  padding: 10px 100px;
+  box-sizing: border-box;
+}
+nav
+{
+  width: 100%;
+  height: 50px;
+  background: rgba(137,127,127,.8);
+  border-top: 1px solid rgba(255,255,255,.2);
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+nav.subnav
+{
+  width: 100%;
+  height: 25px;
+  background: rgba(137,127,127,.5);
+  border-top: 1px solid rgba(255,255,255,.2);
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  position: sticky;
+  top: 52px;
+  z-index: 100;
+}
+nav ul
+{
+  display: flex;
+  margin: 0;
+  padding: 0 100px;
+  float: center;
+}
+nav ul li
+{
+  list-style: none;
+}
+nav ul li a
+{
+  display: block;
+  color: #fff;
+  padding: 0 20px;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-weight: bold;
+  line-height: 50px;
+}
+nav ul li a:hover,
+nav ul li a.active
+{
+  background: lightblue;
+}
+nav.subnav ul
+{
+  display: flex;
+  margin: 0;
+  padding: 0 100px;
+  float: left;
+}
+nav.subnav ul li a
+{
+  display: block;
+  color: #fff;
+  padding: 0 20px;
+  text-decoration: none;
+  text-transform: none;
+  font-weight: bold;
+  line-height: 25px;
+}
+img {
+            filter: drop-shadow(5px 5px 5px #222);
+
+        }
+div:nth-child(even) {
+  background: #DCDCDC;
+}
+div:nth-child(odd) {
+  background: #FFF;
+}
+h1 span {
+  margin-top: 0px;        /* Size of fixed header */
+  padding-bottom: 50px;
+  display: block;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 15px;
+}

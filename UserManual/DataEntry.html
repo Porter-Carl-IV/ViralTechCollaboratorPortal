@@ -1,0 +1,113 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Pimpoint Collaborator Portal Front End</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script type="text/javascript" src="navBehavior.js" defer></script>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="SignIn.html">Sign In</a></li>
+        <li><a href="NewPackage.html">Create New Package</a></li>
+        <li><a href="DataEntry.html"class="active">Data Entry</a></li>
+        <li><a href="SampleTracking.html">Sample Tracking</a></li>
+        <li><a href="LabelPrinting.html">Label Printing</a></li>
+        <li><a href="TrackingNumber.html">Tracking Number Submission</a></li>
+        <li><a href="ErrorPage.html">Error Page</a></li>
+        <li><a href="ErrorContact.html">Error Contact</a></li>
+      </ul>
+    </nav>
+    <nav class="subnav">
+      <ul>
+        <li><a href="#DataEntryPage">Add Sample</a></li>
+        <li><a href="#AddSample">Add Sample</a></li>
+        <li><a href="#AddColumn">Add Column</a></li>
+        <li><a href="#EntryErrors">Entry Errors</a></li>
+        <li><a href="#Saving">Saving</a></li>
+        <li><a href="#Submitting">Submitting</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h1>
+        <span id = "DataEntryPage"> &nbsp; </span>
+        Navigating to the Metadata Page
+      </h1>
+      <p>Users can navigate to the data entry page from the summary page. The summary page for any package is reached by clicking on that package on the sidebar.</p>
+      <img src="images/dataentrynav.png" alt="view/edit metadata"><br>
+      <p>On the summary page, users can click the "View/Edit Metadata" button to go to the metadata page.</p>
+    </div>
+    <div>
+      <h1>
+        <span id = "AddSample"> &nbsp; </span>
+        How to Add Samples
+      </h1>
+      <p>Once the package has been created with the exact number of samples, if a user would like to add more samples to their package they can use the "Add Sample" feature.</p>
+      <img src="images/addsample.png" alt="Add Sample button located bottom left"><br>
+      <p>In order to use the "Add Sample" feature, users can click the "Add Sample" button located at the bottom left of the meta data page</p>
+      <img src="images/addsampleresult.png" alt="Sample Appended to Spreadsheet"><br>
+      <p>After clicking the "Add Sample" button, a new sample is appended to the package. The sample is added to the spreadsheet with a hot-reload that doesn't change or modify any saved or unsaved data currently in the spreadsheet</p>
+    </div>
+    <div>
+      <h1>
+        <span id = "AddColumn"> &nbsp; </span>
+        How to Add Columns
+      </h1>
+      <p>Users are able to add additional columns to their data if they have the "Expandable" permission from TGen North. If you need the ability to add columns to your data, but current don't see an "Add Column" button, then please contact your TGen North point of contact in order to modify your account permissions.</p>
+      <img src="images/addcolumnhov.png" alt="Add Column button located bottom right"><br>
+      <p>In order to use the "Add Column" feature, users can click the "Add Column" button located at the bottom left of the meta data page</p>
+      <img src="images/addcolumnpop.png" alt="Dialog box prompts entry of column name"><br>
+      <p>After clicking the "Add Column" button, users are prompted with a dialog box asking for the name of the column. Enter the name for the data field you'd like to add to the sample and click "ok"</p>
+      <img src="images/addcolresult.png" alt="After hitting okay, new column is added"><br>
+      <p>After submitting the column name, a new column is appended to the package. The column is added to the spreadsheet with a hot-reload that doesn't change or modify any saved or unsaved data currently in the spreadsheet.</p>
+      <p>**Exiting the page without adding any data to the new column field will not save the new column. If this happens users need to re-add the new column upon returning to the page**</p>
+      <p></p>
+    </div>
+    <div>
+      <h1>
+        <span id = "EntryErrors"> &nbsp; </span>
+        Data Errors and How to Correct Them
+      </h1>
+      <p>Data submitted to the server is checked for type both at the front and back end of the collaborator portal. Data submitted to the server is checked for completeness at the back end of the collaborator portal</p>
+      <img src="images/redcell.png" alt="Incorrect data types turn cell red"><br>
+      <p>If data entered into a column is the wrong type (ex. Text type in a Numeric field), then that field will highlight red to indicate the error</p>
+      <img src="images/nonnumericreturn.png" alt="Incorrect data types return error when submitted"><br>
+      <p>If a user tries to submit incorrectly typed data to the database, the user will recieve an error message and the data will not be submitted. The error message indicates which sample has the error and in what field. It also indicates which entry type is needed to fix the problem. In order to fix the error, find the cell with the error by locating the row (Indicated by sample id) and the column (indicated by column name). Once you have found the cell, modify the data so that it conforms to the type indicated in the error message</p>
+      <h2>Types</h2>
+      <p>Numeric: Numeric types consist only of numbers. Decimals and commas may be used to indicate fractional numbers (Ex. 10,0055 or 10.0055), but may not be used to seperate thousands (ex. 5,000,000 is not accepted). </p>
+      <p>Text: Any entry, even numeric ones are categorized as text entries</p>
+      <p>Dropdown: Cell entry is accomplished via dropdown menu. This type is enforced by the spreadsheet</p>
+      <img src="images/missingdata.png" alt="Missing cells return error when submitted"><br>
+      <p>Upon data submission, data is checked for completeness. Any empty cells will result in an error indicating the location of the missing cell. In order to correct this error, find the missing cell (Row referenced by sample id, column referenced by column name), and then input the data for the sample.</p>
+    </div>
+    <div>
+      <h1>
+        <Span id = "Saving"> &nbsp; </span>
+        Data Saving
+      </h1>
+      <p>Users are able to save their data at any time. Saving the data does not submit the sample information permanently, as all saved data is able to be edited later. Incorrect or incomplete data can still be saved insantly.</p>
+      <img src="images/savehover.png" alt="Save button located bottom right"><br>
+      <p>The "Save" button is located at the bottom right of the meta data page.</p>
+      <img src="images/midcompletion.png" alt="Able to save before completing data entry"><br>
+      <p>Users are able to save even incomplete data.</p>
+      <img src="images/savecheck.png" alt="Upon leaving the page, user will be prompted to save if they have unsaved data"><br>
+      <p>If a user tries to navigate away from the page with unsaved data in their spreadsheet, the collaborator portal prompts the user to save the data first. Clicking "Leave" will navigate the user away from the page without saving. If a user decides to save the data before leaving, they need to click "Cancel" and then hit the "Save" button. Now that the data is successfully saved, users are able to navigate away without any further dialog pop-ups.</p>
+      <img src="images/saveresult.png" alt="Upon successfully saving, recieve popup message"><br>
+      <p>Upon successfully saving package data, users see a "Package Saved Successfully" dialog box.</p>
+    </div>
+    <div>
+      <h1>
+        <span id = "Submitting"> &nbsp; </span>
+        Data Submitting
+      </h1>
+      <p>Data submission sends a packages data to the Scientists at TGen North. This should only be done when the user is satisified with both the accuracy and completeness of their packages data, as after submission users are unable to edit the data anymore.</p>
+      <img src="images/submithov.png" alt="Submit bottom located bottom right"><br>
+      <p>The "Submit" button is located at the bottom right of the meta data page.</p>
+      <img src="images/submitdialog.png" alt="When submitting, dialog checks to make sure all data is present and final"><br>
+      <p>After clicking the "Submit" button, the collaborator portal asks the user if they are satisifed with their data entry. After submission, data cannot be edited by the user.</p>
+      <img src="images/submitresult.png" alt="Upon successful submission, displays 'Success' message>"><br>
+      <p>Upon a successfuly submission with no errors, users see a "Success" message.</p>
+    </div>
+    </body>
+</html>

@@ -1,0 +1,68 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Pimpoint Collaborator Portal Front End</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script type="text/javascript" src="navBehavior.js" defer></script>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="SignIn.html">Sign In</a></li>
+        <li><a href="NewPackage.html">Create New Package</a></li>
+        <li><a href="DataEntry.html">Data Entry</a></li>
+        <li><a href="SampleTracking.html"class="active">Sample Tracking</a></li>
+        <li><a href="LabelPrinting.html">Label Printing</a></li>
+        <li><a href="TrackingNumber.html">Tracking Number Submission</a></li>
+        <li><a href="ErrorPage.html">Error Page</a></li>
+        <li><a href="ErrorContact.html">Error Contact</a></li>
+      </ul>
+    </nav>
+<h1>Collaborator Portal Sample Tracking</h1>
+<p>Collaborators can track the progress of their samples as they move through the TGen North process.</p>
+<img src="images/trackingsummary.png" alt="Tracking indicator on summary page"><br>
+<p>Users can see the tracking indicator on the summary page for the package they want to track. To navigate to a packages summary page, users can click on the package on the sidebar.</p>
+<img src="images/trackingsidebar.png" alt="Tracking icons on sidebar"><br>
+<p>Packages on the sidebar also have an icon next to their buttons, indicating which step their package is currently on. Users can mouse over these icons to read a step description.</p>
+<h2>Package Steps</h2>
+<table>
+  <tr>
+    <th>Package Step Icon</th>
+    <th>Package Step ID</th>
+    <th>Package Step Name</th>
+    <th>Package Step Description</th>
+  </tr>
+  <tr>
+    <td><img src="images/step1.png" alt="Step 1 Icon"></td>
+    <td>1</td>
+    <td>Filling Out Metadata</td>
+    <td>Package is still being worked on by the collaborator. Package metdata is being filled out and sample tubes are being labeled.</td>
+  </tr>
+  <tr>
+    <td><img src="images/step2.png" alt="Step 2 Icon"></td>
+    <td>2</td>
+    <td>In Transit</td>
+    <td>Package metadata is complete, tubes are all labeled. Collaborator has submitted data to TGen North and is currently shipping the package to TGen North.</td>
+  </tr>
+  <tr>
+    <td><img src="images/step3.png" alt="Step 3 Icon"></td>
+    <td>3</td>
+    <td>Processing Samples</td>
+    <td>TGen North has received the package, and is currently processing the samples.</td>
+  </tr>
+  <tr>
+    <td><img src="images/step4.png" alt="Step 4 Icon"></td>
+    <td>4</td>
+    <td>Complete</td>
+    <td>TGen North has finished processing all of the samples, results are ready!</td>
+  </tr>
+  <tr>
+    <td><img src="images/steperror.png" alt="Error Step Icon"></td>
+    <td>-1</td>
+    <td>Error</td>
+    <td>Some or all of the samples encountered problems durring transit or processing.</td>
+  </tr>
+</table>
+    </body>
+    </html>
